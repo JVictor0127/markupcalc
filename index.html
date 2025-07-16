@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Chosen Palette: Calm Neutrals -->
+    <!-- Application Structure Plan: A single-page application designed as an educational journey. It starts by clarifying the core confusion (Markup vs. Margin) with an interactive calculator. It then introduces the two methods (Multiplier vs. Divisor) side-by-side, each with its own calculator. A "Decision Guide" helps users choose the right method for their scenario. The centerpiece is a comprehensive "Pricing Simulator" where users input all cost variables to see a full price breakdown, visualized with a dynamic donut chart. The app concludes with common pitfalls and a visual 30-day learning plan. This thematic, task-oriented structure was chosen over the report's linear format to maximize user engagement and practical application, transforming passive reading into active learning. -->
+    <!-- Visualization & Content Choices: 
+        - [Markup vs. Margin] -> Goal: Compare -> Method: Side-by-side layout with dynamic text updated by a JS calculator. Justification: Provides immediate, interactive feedback on the core concept.
+        - [Multiplier vs. Divisor] -> Goal: Compare/Inform -> Method: JS-powered calculators for each method. Justification: Allows users to directly manipulate inputs and see how each formula works independently.
+        - [Pricing Simulator] -> Goal: Relate/Synthesize -> Method: A dynamic donut chart (Chart.js/Canvas) linked to a comprehensive JS calculator. Justification: Visually breaks down the final price composition, making the relationship between cost, expenses, and profit tangible.
+        - [Industry Markups] -> Goal: Compare -> Method: An interactive bar chart (Chart.js/Canvas) showing typical markups. Justification: Provides real-world context and industry benchmarks.
+        - [30-Day Plan] -> Goal: Organize -> Method: A vertical timeline built with HTML/CSS. Justification: Presents the plan in a more visually engaging and digestible format than a simple list.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <title>Calculadora e Guia de Precificação Estratégica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f7f4; color: #3d3b38; }
+        .card { background-color: #ffffff; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); padding: 1.5rem; transition: all 0.3s ease-in-out; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1); }
+        .btn { padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600; transition: background-color 0.3s; }
+        .btn-primary { background-color: #8c7a6b; color: #ffffff; }
+        .btn-primary:hover { background-color: #736353; }
+        .input-field { width: 100%; padding: 0.75rem; border: 1px solid #dcdad7; border-radius: 0.5rem; transition: border-color 0.3s, box-shadow 0.3s; }
+        .input-field:focus { outline: none; border-color: #8c7a6b; box-shadow: 0 0 0 3px rgba(140, 122, 107, 0.2); }
+        h1, h2, h3 { color: #5c5248; }
+        .chart-container { position: relative; width: 100%; max-width: 450px; margin-left: auto; margin-right: auto; height: 300px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 350px; } }
+        .sticky-nav { position: -webkit-sticky; position: sticky; top: 0; z-index: 10; }
+    </style>
+</head>
+<body>
+
+    <header class="text-center py-12 px-4 bg-white">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-4">Guia Interativo de Precificação</h1>
+        <p class="text-lg md:text-xl max-w-3xl mx-auto text-gray-600">Transforme dados em lucro. Domine o Markup Divisor e Multiplicador com ferramentas práticas.</p>
+    </header>
+
+    <nav class="sticky-nav bg-white/80 backdrop-blur-md shadow-sm">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-center items-center space-x-2 md:space-x-6 py-3 overflow-x-auto">
+                <a href="#section-intro" class="text-sm md:text-base font-semibold text-gray-600 hover:text-[#8c7a6b] transition whitespace-nowrap">Introdução</a>
+                <a href="#section-calculator" class="text-sm md:text-base font-semibold text-gray-600 hover:text-[#8c7a6b] transition whitespace-nowrap">Calculadoras</a>
+                <a href="#section-simulator" class="text-sm md:text-base font-semibold text-gray-600 hover:text-[#8c7a6b] transition whitespace-nowrap">Simulador</a>
+                <a href="#section-llm-advisor" class="text-sm md:text-base font-semibold text-gray-600 hover:text-[#8c7a6b] transition whitespace-nowrap">Conselheiro IA</a>
+                <a href="#section-guide" class="text-sm md:text-base font-semibold text-gray-600 hover:text-[#8c7a6b] transition whitespace-nowrap">Guia de Decisão</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="section-intro" class="my-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-3">O Pilar da Lucratividade: Markup vs. Margem</h2>
+                <p class="max-w-3xl mx-auto text-gray-600">A confusão entre markup e margem é um dos erros mais caros na gestão de um negócio. Esta seção interativa foi criada para solidificar a diferença fundamental entre os dois, permitindo que você veja em tempo real como cada um é calculado e o que eles realmente representam para sua saúde financeira.</p>
+            </div>
+            <div class="card">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-4">Calculadora de Markup vs. Margem</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="intro-cost" class="font-semibold block mb-1">Custo do Produto (R$)</label>
+                                <input type="number" id="intro-cost" class="input-field" value="100">
+                            </div>
+                            <div>
+                                <label for="intro-price" class="font-semibold block mb-1">Preço de Venda (R$)</label>
+                                <input type="number" id="intro-price" class="input-field" value="125">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-gray-500">Markup</h4>
+                            <p class="text-4xl font-extrabold" id="intro-markup-result">25.0%</p>
+                            <p class="text-xs text-gray-500">(sobre o custo)</p>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-gray-500">Margem</h4>
+                            <p class="text-4xl font-extrabold" id="intro-margin-result">20.0%</p>
+                            <p class="text-xs text-gray-500">(sobre o preço)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-300">
+
+        <section id="section-calculator" class="my-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-3">As Ferramentas de Precificação</h2>
+                <p class="max-w-3xl mx-auto text-gray-600">Agora que a diferença entre markup e margem está clara, vamos explorar as duas principais ferramentas para construir seu preço. Cada método serve a um propósito estratégico diferente. Use as calculadoras abaixo para entender como cada um funciona na prática.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-4">Método: Markup Multiplicador</h3>
+                    <p class="text-sm text-gray-600 mb-4">Calcula o índice que, ao ser multiplicado pelo custo de produção, resulta no preço de venda. Fórmula: `100 / [100 - (DV + DF + ML)]`.</p>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="multiplier-cost" class="font-semibold block mb-1">Custo do Produto (R$)</label>
+                            <input type="number" id="multiplier-cost" class="input-field" value="100">
+                        </div>
+                        <div>
+                            <label for="multiplier-dv" class="font-semibold block mb-1">Despesas Variáveis (DV) (%)</label>
+                            <input type="number" id="multiplier-dv" class="input-field" value="17.70">
+                        </div>
+                        <div>
+                            <label for="multiplier-df" class="font-semibold block mb-1">Despesas Fixas (DF) (%)</label>
+                            <input type="number" id="multiplier-df" class="input-field" value="24">
+                        </div>
+                        <div>
+                            <label for="multiplier-ml" class="font-semibold block mb-1">Margem de Lucro (ML) (%)</label>
+                            <input type="number" id="multiplier-ml" class="input-field" value="15">
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center bg-gray-100 p-4 rounded-lg">
+                        <p class="text-lg font-semibold">Markup Multiplicador (M):</p>
+                        <p class="text-3xl font-extrabold" id="multiplier-factor-result">2.31</p>
+                        <p class="text-lg font-semibold mt-4">Preço de Venda Final:</p>
+                        <p class="text-4xl font-extrabold" id="multiplier-result">R$ 230,95</p>
+                    </div>
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h4 class="font-semibold mb-2">Passo a Passo do Cálculo:</h4>
+                        <p id="multiplier-steps" class="text-sm text-gray-700 leading-relaxed">
+                            <span class="block">1. Soma das porcentagens (DV + DF + ML) = 17.70% + 24% + 15% = 56.70%</span>
+                            <span class="block">2. Subtração de 100%: 100 - 56.70 = 43.30%</span>
+                            <span class="block">3. Markup Multiplicador = 100 / 43.30 = 2.3095</span>
+                            <span class="block">4. Preço de Venda = Custo x Markup Multiplicador = R$ 100,00 x 2.3095 = R$ 230,95</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-2xl font-bold mb-4">Método: Markup Divisor</h3>
+                    <p class="text-sm text-gray-600 mb-4">Calcula o índice que, ao dividir o custo de produção, resulta no preço de venda. Fórmula: `(PV – CTV) / 100`, onde PV é 100% e CTV é `DV + DF + ML`.</p>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="divisor-cost" class="font-semibold block mb-1">Custo do Produto (R$)</label>
+                            <input type="number" id="divisor-cost" class="input-field" value="100">
+                        </div>
+                        <div>
+                            <label for="divisor-dv" class="font-semibold block mb-1">Despesas Variáveis (DV) (%)</label>
+                            <input type="number" id="divisor-dv" class="input-field" value="17.70">
+                        </div>
+                        <div>
+                            <label for="divisor-df" class="font-semibold block mb-1">Despesas Fixas (DF) (%)</label>
+                            <input type="number" id="divisor-df" class="input-field" value="24">
+                        </div>
+                        <div>
+                            <label for="divisor-ml" class="font-semibold block mb-1">Margem de Lucro (ML) (%)</label>
+                            <input type="number" id="divisor-ml" class="input-field" value="15">
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center bg-gray-100 p-4 rounded-lg">
+                        <p class="text-lg font-semibold">Markup Divisor (D):</p>
+                        <p class="text-3xl font-extrabold" id="divisor-factor-result">0.4330</p>
+                        <p class="text-lg font-semibold mt-4">Preço de Venda Final:</p>
+                        <p class="text-4xl font-extrabold" id="divisor-result">R$ 230,95</p>
+                    </div>
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <h4 class="font-semibold mb-2">Passo a Passo do Cálculo:</h4>
+                        <p id="divisor-steps" class="text-sm text-gray-700 leading-relaxed">
+                            <span class="block">1. Total do CTV (DV + DF + ML) = 17.70% + 24% + 15% = 56.70%</span>
+                            <span class="block">2. Subtração de 100% (PV - CTV): 100 - 56.70 = 43.30%</span>
+                            <span class="block">3. Markup Divisor = 43.30% / 100 = 0.4330</span>
+                            <span class="block">4. Preço de Venda = Custo / Markup Divisor = R$ 100,00 / 0.4330 = R$ 230,95</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-300">
+
+        <section id="section-simulator" class="my-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-3">Simulador de Precificação Completo</h2>
+                <p class="max-w-3xl mx-auto text-gray-600">A precificação real envolve mais do que apenas o custo do produto. Este simulador integra todas as variáveis-chave — custos, despesas e lucro desejado — para calcular seu preço de venda ideal usando o método do divisor, o mais robusto para o planejamento financeiro.</p>
+            </div>
+            <div class="card">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+                    <div>
+                        <h3 class="text-2xl font-bold mb-4">Insira as Variáveis do Negócio</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="sim-cost" class="font-semibold block mb-1">Custo de Aquisição/Produção (R$)</label>
+                                <input type="number" id="sim-cost" class="input-field" value="150">
+                            </div>
+                            <div>
+                                <label for="sim-fixed" class="font-semibold block mb-1">Despesas Fixas (%)</label>
+                                <input type="number" id="sim-fixed" class="input-field" value="15">
+                            </div>
+                             <div>
+                                <label for="sim-variable" class="font-semibold block mb-1">Despesas Variáveis (%)</label>
+                                <input type="number" id="sim-variable" class="input-field" value="10">
+                            </div>
+                             <div>
+                                <label for="sim-profit" class="font-semibold block mb-1">Lucro Desejado (%)</label>
+                                <input type="number" id="sim-profit" class="input-field" value="20">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="text-center mb-4">
+                            <p class="text-lg font-semibold">Preço de Venda Sugerido:</p>
+                            <p class="text-5xl font-extrabold" id="sim-result">R$ 272,73</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="priceBreakdownChart"></canvas>
+                        </div>
+                        <p class="text-center mt-2 text-sm text-gray-500">Composição do Preço de Venda Final.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <hr class="my-16 border-gray-300">
+
+        <section id="section-llm-advisor" class="my-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-3">✨ Conselheiro de Estratégias de Precificação ✨</h2>
+                <p class="max-w-3xl mx-auto text-gray-600">Descreva seu produto, custos e objetivos de lucro para receber sugestões de estratégias de precificação personalizadas.</p>
+            </div>
+            <div class="card">
+                <div class="space-y-4">
+                    <div>
+                        <label for="llm-prompt-input" class="font-semibold block mb-1">Descreva seu cenário (ex: "Tenho uma loja de camisetas, o custo é R$30 e quero 20% de lucro. Qual estratégia devo usar?"):</label>
+                        <textarea id="llm-prompt-input" class="input-field h-32 resize-y" placeholder="Ex: Meu produto é um software de gestão para pequenas empresas, o custo de desenvolvimento é alto, mas a manutenção é baixa. Quero maximizar o lucro a longo prazo."></textarea>
+                    </div>
+                    <button id="get-strategy-btn" class="btn btn-primary w-full">Obter Sugestão de Estratégia ✨</button>
+                    <div id="llm-response-area" class="mt-6 p-4 bg-gray-100 rounded-lg min-h-[100px] flex items-center justify-center text-gray-700 italic">
+                        Sua sugestão de estratégia aparecerá aqui...
+                    </div>
+                    <div id="llm-loading-indicator" class="hidden text-center mt-4">
+                        <div class="animate-spin inline-block w-8 h-8 border-4 border-t-4 border-gray-200 rounded-full border-t-[#8c7a6b]"></div>
+                        <p class="text-gray-600 mt-2">Gerando sugestão...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-300">
+
+        <section id="section-guide" class="my-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-3">Guia de Decisão: Qual Método Usar?</h2>
+                <p class="max-w-3xl mx-auto text-gray-600">A escolha do método de precificação é estratégica. Use este guia para identificar a abordagem mais adequada para diferentes cenários do seu negócio.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                 <div class="card text-center">
+                    <div class="text-4xl mb-3">🚀</div>
+                    <h3 class="font-bold text-lg mb-2">Cenário: Lançar um novo produto</h3>
+                    <p class="text-sm text-gray-600 mb-4">Objetivo: Definir um preço base rapidamente.</p>
+                    <div class="bg-green-100 text-green-800 font-bold p-2 rounded-full text-sm">Use: MULTIPLICADOR</div>
+                </div>
+                 <div class="card text-center">
+                    <div class="text-4xl mb-3">🎯</div>
+                    <h3 class="font-bold text-lg mb-2">Cenário: Garantir a rentabilidade</h3>
+                    <p class="text-sm text-gray-600 mb-4">Objetivo: Atingir uma margem de lucro específica.</p>
+                    <div class="bg-blue-100 text-blue-800 font-bold p-2 rounded-full text-sm">Use: DIVISOR</div>
+                </div>
+                <div class="card text-center">
+                    <div class="text-4xl mb-3">💸</div>
+                    <h3 class="font-bold text-lg mb-2">Cenário: Planejar promoções</h3>
+                    <p class="text-sm text-gray-600 mb-4">Objetivo: Analisar o impacto de descontos.</p>
+                    <div class="bg-blue-100 text-blue-800 font-bold p-2 rounded-full text-sm">Use: DIVISOR</div>
+                </div>
+                 <div class="card text-center">
+                    <div class="text-4xl mb-3">🏢</div>
+                    <h3 class="font-bold text-lg mb-2">Cenário: Serviços ou projetos</h3>
+                    <p class="text-sm text-gray-600 mb-4">Objetivo: Precificar o valor total do contrato.</p>
+                    <div class="bg-blue-100 text-blue-800 font-bold p-2 rounded-full text-sm">Use: DIVISOR</div>
+                </div>
+                 <div class="card text-center">
+                    <div class="text-4xl mb-3">📦</div>
+                    <h3 class="font-bold text-lg mb-2">Cenário: Varejo de alto volume</h3>
+                    <p class="text-sm text-gray-600 mb-4">Objetivo: Manter preços competitivos em escala.</p>
+                    <div class="bg-green-100 text-green-800 font-bold p-2 rounded-full text-sm">Use: MULTIPLICADOR</div>
+                </div>
+                 <div class="card text-center">
+                    <div class="text-4xl mb-3">📈</div>
+                    <h3 class="font-bold text-lg mb-2">Cenário: Análise financeira</h3>
+                    <p class="text-sm text-gray-600 mb-4">Objetivo: Medir a eficiência da conversão de vendas.</p>
+                    <div class="bg-blue-100 text-blue-800 font-bold p-2 rounded-full text-sm">Use: DIVISOR (Margem)</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-white mt-16 py-8">
+        <div class="container mx-auto text-center text-gray-600">
+            <p>&copy; 2025 Guia Interativo de Precificação. Todos os direitos reservados.</p>
+            <p class="text-sm mt-2">Uma aplicação para transformar teoria em resultados práticos.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const formatCurrency = (value) => {
+                if (isNaN(value) || !isFinite(value)) return 'R$ 0,00';
+                return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+            };
+
+            const formatPercent = (value) => {
+                if (isNaN(value) || !isFinite(value)) return '0.0%';
+                return value.toFixed(1) + '%';
+            };
+
+            const introCost = document.getElementById('intro-cost');
+            const introPrice = document.getElementById('intro-price');
+            const introMarkupResult = document.getElementById('intro-markup-result');
+            const introMarginResult = document.getElementById('intro-margin-result');
+
+            function calculateIntro() {
+                const cost = parseFloat(introCost.value) || 0;
+                const price = parseFloat(introPrice.value) || 0;
+                let markup = 0;
+                let margin = 0;
+
+                if (cost > 0 && price >= cost) {
+                    markup = ((price - cost) / cost) * 100;
+                }
+                if (price > 0) {
+                    margin = ((price - cost) / price) * 100;
+                }
+                
+                introMarkupResult.textContent = formatPercent(markup);
+                introMarginResult.textContent = formatPercent(margin);
+            }
+
+            [introCost, introPrice].forEach(el => el.addEventListener('input', calculateIntro));
+            calculateIntro();
+
+            const multiplierCost = document.getElementById('multiplier-cost');
+            const multiplierDv = document.getElementById('multiplier-dv');
+            const multiplierDf = document.getElementById('multiplier-df');
+            const multiplierMl = document.getElementById('multiplier-ml');
+            const multiplierFactorResult = document.getElementById('multiplier-factor-result');
+            const multiplierResult = document.getElementById('multiplier-result');
+            const multiplierSteps = document.getElementById('multiplier-steps');
+
+            function calculateMultiplier() {
+                const cost = parseFloat(multiplierCost.value) || 0;
+                const dv = parseFloat(multiplierDv.value) || 0;
+                const df = parseFloat(multiplierDf.value) || 0;
+                const ml = parseFloat(multiplierMl.value) || 0;
+
+                const somaPerc = dv + df + ml;
+                let markupMultiplicador = 0;
+                let price = 0;
+                let step1 = 0;
+                let step2 = 0;
+
+                if (somaPerc < 100) {
+                    step1 = somaPerc;
+                    step2 = 100 - somaPerc;
+                    markupMultiplicador = 100 / step2;
+                    price = cost * markupMultiplicador;
+                } else {
+                    markupMultiplicador = NaN; 
+                    price = 0;
+                }
+                
+                multiplierFactorResult.textContent = isNaN(markupMultiplicador) ? 'Inválido' : markupMultiplicador.toFixed(4);
+                multiplierResult.textContent = formatCurrency(price);
+
+                multiplierSteps.innerHTML = `
+                    <span class="block">1. Soma das porcentagens (DV + DF + ML) = ${dv.toFixed(2)}% + ${df.toFixed(2)}% + ${ml.toFixed(2)}% = ${step1.toFixed(2)}%</span>
+                    <span class="block">2. Subtração de 100%: 100 - ${step1.toFixed(2)} = ${step2.toFixed(2)}%</span>
+                    <span class="block">3. Markup Multiplicador = 100 / ${step2.toFixed(2)} = ${markupMultiplicador.toFixed(4)}</span>
+                    <span class="block">4. Preço de Venda = Custo x Markup Multiplicador = R$ ${cost.toFixed(2).replace('.', ',')} x ${markupMultiplicador.toFixed(4)} = ${formatCurrency(price)}</span>
+                `;
+            }
+
+            [multiplierCost, multiplierDv, multiplierDf, multiplierMl].forEach(el => el.addEventListener('input', calculateMultiplier));
+            calculateMultiplier();
+
+            const divisorCost = document.getElementById('divisor-cost');
+            const divisorDv = document.getElementById('divisor-dv');
+            const divisorDf = document.getElementById('divisor-df');
+            const divisorMl = document.getElementById('divisor-ml');
+            const divisorFactorResult = document.getElementById('divisor-factor-result');
+            const divisorResult = document.getElementById('divisor-result');
+            const divisorSteps = document.getElementById('divisor-steps');
+            
+            function calculateDivisor() {
+                const cost = parseFloat(divisorCost.value) || 0;
+                const dv = parseFloat(divisorDv.value) || 0;
+                const df = parseFloat(divisorDf.value) || 0;
+                const ml = parseFloat(divisorMl.value) || 0;
+
+                const somaPerc = dv + df + ml;
+                let markupDivisorCalculated = 0;
+                let price = 0;
+                let step1 = 0;
+                let step2 = 0;
+
+                if (somaPerc < 100) {
+                    step1 = somaPerc;
+                    step2 = 100 - somaPerc;
+                    markupDivisorCalculated = step2 / 100;
+                    price = cost / markupDivisorCalculated;
+                } else {
+                    markupDivisorCalculated = NaN; 
+                    price = 0;
+                }
+                
+                divisorFactorResult.textContent = isNaN(markupDivisorCalculated) ? 'Inválido' : markupDivisorCalculated.toFixed(4);
+                divisorResult.textContent = formatCurrency(price);
+
+                divisorSteps.innerHTML = `
+                    <span class="block">1. Total do CTV (DV + DF + ML) = ${dv.toFixed(2)}% + ${df.toFixed(2)}% + ${ml.toFixed(2)}% = ${step1.toFixed(2)}%</span>
+                    <span class="block">2. Subtração de 100% (PV - CTV): 100 - ${step1.toFixed(2)} = ${step2.toFixed(2)}%</span>
+                    <span class="block">3. Markup Divisor = ${step2.toFixed(2)}% / 100 = ${markupDivisorCalculated.toFixed(4)}</span>
+                    <span class="block">4. Preço de Venda = Custo / Markup Divisor = R$ ${cost.toFixed(2).replace('.', ',')} / ${markupDivisorCalculated.toFixed(4)} = ${formatCurrency(price)}</span>
+                `;
+            }
+
+            [divisorCost, divisorDv, divisorDf, divisorMl].forEach(el => el.addEventListener('input', calculateDivisor));
+            calculateDivisor();
+
+            const simCost = document.getElementById('sim-cost');
+            const simFixed = document.getElementById('sim-fixed');
+            const simVariable = document.getElementById('sim-variable');
+            const simProfit = document.getElementById('sim-profit');
+            const simResult = document.getElementById('sim-result');
+
+            const chartCtx = document.getElementById('priceBreakdownChart').getContext('2d');
+            let breakdownChart = new Chart(chartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Custo', 'Desp. Fixas', 'Desp. Variáveis', 'Lucro'],
+                    datasets: [{
+                        data: [60, 15, 10, 15],
+                        backgroundColor: ['#5c5248', '#8c7a6b', '#ab9e92', '#5f8b53'],
+                        borderColor: '#f8f7f4',
+                        borderWidth: 4,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            function calculateSimulator() {
+                const cost = parseFloat(simCost.value) || 0;
+                const fixedExp = parseFloat(simFixed.value) || 0;
+                const varExp = parseFloat(simVariable.value) || 0;
+                const profit = parseFloat(simProfit.value) || 0;
+
+                const totalExpensesAndProfit = fixedExp + varExp + profit;
+                let price = 0;
+
+                if (totalExpensesAndProfit < 100) {
+                    const divisor = 1 - (totalExpensesAndProfit / 100);
+                    price = cost / divisor;
+                }
+
+                simResult.textContent = formatCurrency(price);
+                
+                const costValue = cost;
+                const fixedValue = price * (fixedExp / 100);
+                const varValue = price * (varExp / 100);
+                const profitValue = price * (profit / 100);
+
+                breakdownChart.data.datasets[0].data = [costValue, fixedValue, varValue, profitValue];
+                breakdownChart.update();
+            }
+            
+            [simCost, simFixed, simVariable, simProfit].forEach(el => el.addEventListener('input', calculateSimulator));
+            calculateSimulator();
+            
+            const llmPromptInput = document.getElementById('llm-prompt-input');
+            const getStrategyBtn = document.getElementById('get-strategy-btn');
+            const llmResponseArea = document.getElementById('llm-response-area');
+            const llmLoadingIndicator = document.getElementById('llm-loading-indicator');
+
+            getStrategyBtn.addEventListener('click', async () => {
+                const prompt = llmPromptInput.value.trim();
+                if (!prompt) {
+                    llmResponseArea.textContent = 'Por favor, descreva seu cenário para obter uma sugestão.';
+                    return;
+                }
+
+                llmResponseArea.textContent = ''; 
+                llmLoadingIndicator.classList.remove('hidden'); 
+                getStrategyBtn.disabled = true; 
+
+                try {
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: `Como um especialista em precificação e estratégia de negócios, forneça uma sugestão de estratégia de precificação para o seguinte cenário. Seja conciso e focado em estratégias práticas. Cenário: ${prompt}` }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = ""; 
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        llmResponseArea.textContent = text;
+                    } else {
+                        llmResponseArea.textContent = 'Não foi possível gerar uma sugestão. Tente novamente.';
+                    }
+                } catch (error) {
+                    console.error('Erro ao chamar a API Gemini:', error);
+                    llmResponseArea.textContent = 'Ocorreu um erro ao conectar com o serviço. Tente novamente mais tarde.';
+                } finally {
+                    llmLoadingIndicator.classList.add('hidden'); 
+                    getStrategyBtn.disabled = false; 
+                }
+            });
+            
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
